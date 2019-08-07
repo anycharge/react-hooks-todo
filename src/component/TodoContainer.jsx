@@ -1,50 +1,45 @@
-import React, { Component } from "react";
+import React, { Component, useRef, useState } from "react";
 import TodoList from "./TodoList";
 import Add from "./Add";
 import Todo from "./Todo";
 
-// const mockList = [
-//   {
-//     id: 1,
-//     title: "1",
-//     content: "내용1",
-//     category: "",
-//     createDate: new Date(),
-//     editDate: "",
-//     done: true
-//   },
-//   {
-//     id: 2,
-//     title: "2",
-//     content: "내용2",
-//     category: "",
-//     createDate: new Date(),
-//     editDate: "",
-//     done: false
-//   },
-//   {
-//     id: 3,
-//     title: "3",
-//     content: "내용3333333333",
-//     category: "",
-//     createDate: new Date(),
-//     editDate: "",
-//     done: false
-//   }
-// ];
-const mockList = '';
+const mockList = [
+  {
+    id: 1,
+    title: "1",
+    content: "내용1",
+    category: "",
+    createDate: new Date(),
+    editDate: "",
+    done: true
+  },
+  {
+    id: 2,
+    title: "2",
+    content: "내용2",
+    category: "",
+    createDate: new Date(),
+    editDate: "",
+    done: false
+  },
+  {
+    id: 3,
+    title: "3",
+    content: "내용3333333333",
+    category: "",
+    createDate: new Date(),
+    editDate: "",
+    done: false
+  }
+];
+// const mockList = '';
 
-class TodoContainer extends Component {
+const TodoContainer = () => {
+  const [ todoList, setTodoList ] = useState( mockList );
+  const [ value, setValue ] = useState( '' );
+  const todoCount = useRef( todoList.length );
 
-  state = {
-    todoList: (Array.isArray( mockList ) && mockList) || [],
-    value: '',
-  };
-
-  title = "오늘할일";
-  todoCount = this.state.todoList.length;
-
-  initTodo = (value) => {
+  const initTodo = (value) => {
     return {
       id: 0,
       title: "",
@@ -56,12 +51,11 @@ class TodoContainer extends Component {
     };
   };
 
-  setTodo = (value) => {
-    const id = this.todoCount + 1;
-    this.todoCount = id;
+  const setTodo = (value) => {
+    todoCount.current = todoCount.current + 1;
 
     return {
-      id,
+      id: todoCount.current,
       title: "",
       content: value,
       category: "",
@@ -70,7 +64,7 @@ class TodoContainer extends Component {
     }
   };
 
-  updateTodoList = (todoList, id, fnc) => {
+  const updateTodoList = (todoList, id, fnc) => {
     return todoList.map( (item) => {
       if ( item.id === id ){
         return fnc( item );
@@ -79,70 +73,53 @@ class TodoContainer extends Component {
     } );
   };
 
-  onClickAdd = (value) => () => {
-    this.setState( ({ todoList }) => {
-      let todo;
+  const onClickAdd = (value) => () => {
 
-      if ( todoList.length ){
-        todo = this.setTodo( value )
-      } else {
-        todo = this.initTodo( value );
-      }
+    let todo;
 
-      return {
-        todoList: [ ...todoList, todo ],
-        value: ''
-      }
+    if ( todoList.length ){
+      todo = setTodo( value )
+    } else {
+      todo = initTodo( value );
+    }
+
+    setTodoList( [ ...todoList, todo ] );
+    setValue( '' );
+  };
+
+  const onChange = ({ target: { value } }) => {
+    setValue( value );
+  };
+
+  const onClickDelete = (id) => () => {
+    const filterTodo = todoList.filter( (item) => {
+      return item.id !== id;
     } );
+    setTodoList( filterTodo );
   };
 
-  onChange = ({ target: { value } }) => {
-    this.setState( { value } );
+  const onClickDone = (id) => () => {
+    const upDateTodoList = updateTodoList(
+      todoList,
+      id,
+      (item) => ({ ...item, done: !item.done }) );
+    setTodoList( upDateTodoList );
   };
 
-  onClickDelete = (id) => () => {
-    this.setState( ({ todoList }) => {
-      const filterTodo = todoList.filter( (item) => {
-        return item.id !== id;
-      } );
-
-      return {
-        todoList: filterTodo
-      }
-    } );
-  };
-
-  onClickDone = (id) => () => {
-    this.setState( ({ todoList: list }) => {
-      const todoList = this.updateTodoList(
-        list,
-        id,
-        (item) => ({ ...item, done: !item.done }) );
-
-      return {
-        todoList
-      }
-    } )
-  };
-
-  render(){
-    const { value, todoList } = this.state;
-
-    return (
-      <Todo>
-        <Add
-          value={ value }
-          onChange={ this.onChange }
-          onClickAdd={ this.onClickAdd }
-        />
-        <TodoList
-          todoList={ todoList }
-          onClickDone={ this.onClickDone }
-          onClickDelete={ this.onClickDelete }
-        />
-      </Todo>
-    )
-  }
-}
+  return (
+    <Todo>
+      <Add
+        value={ value }
+        onChange={ onChange }
+        onClickAdd={ onClickAdd }
+      />
+      <TodoList
+        todoList={ todoList }
+        onClickDone={ onClickDone }
+        onClickDelete={ onClickDelete }
+      />
+    </Todo>
+  )
+};
 
 export default TodoContainer;

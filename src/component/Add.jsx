@@ -1,17 +1,13 @@
-import React, { Component } from "react";
+import React from "react";
 
-class Main extends Component {
+const Add = ({ value, onChange, onClickAdd }) => {
+debugger
+  return (
+    <>
+      <input type="text" id="myInput" placeholder="할일.." value={ value } onChange={ onChange }/>
+      <span className="addBtn" onClick={ onClickAdd( value ) }>추가</span>
+    </>
+  )
+};
 
-  render(){
-    const { value, onChange, onClickAdd } = this.props;
-
-    return (
-      <>
-        <input type="text" id="myInput" placeholder="할일.." value={ value } onChange={ onChange }/>
-        <span className="addBtn" onClick={ onClickAdd( value ) }>추가</span>
-      </>
-    )
-  }
-}
-
-export default Main;
+export default Add;
